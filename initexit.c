@@ -1,4 +1,5 @@
 #include"header.h"
+//This is 2nd commit by ashish
 
 int nod=1;
 dev_t dev;
