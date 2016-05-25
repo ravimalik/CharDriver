@@ -1,6 +1,8 @@
 #include"header.h"
 //This is 2nd commit by ashish
 
+//This is added by Ravi
+
 int nod=1;
 dev_t dev;
 
