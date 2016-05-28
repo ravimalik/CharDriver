@@ -1,11 +1,42 @@
 #include"header.h"
-//This is 2nd commit by ashish
+#include"decleration.h"
 
-//This is added by Ravi
+/*
+static int myopen(struct inode *in, struct file *fp)
+{
+	pr_info("Device opened\n");
+	return 0;
+}
+static int myclose(struct inode *in, struct file *fp)
+{
+	pr_info("Device closed\n");
+	return 0;
+}
+
+ssize_t mywrite(struct file *, const char __user *,size_t , loff_t *)
+{
+	pr_info("Write function\n");
+	return 0;
+}
+ssize_t myread(struct file *, char __user *, size_t , loff_t *)
+{
+	pr_info("Read function\n");
+	return 0;
+}
+*/
 
 int nod=1;
 dev_t dev;
+struct cdev mydev;
 static struct class *cl;
+
+struct file_operations fops={
+	owner   : THIS_MODULE,
+	open    : myopen,
+	release : myclose,
+	read	: myread,
+	write	: mywrite
+};
 
 static int __init constructor(void)
 {
@@ -18,9 +49,17 @@ static int __init constructor(void)
 	}
 	
 	pr_info("Hello, Module Registered\nMajor No. : %d\tminor : %d\n",MAJOR(dev),MINOR(dev));
+
+	cdev_init(&mydev,&fops);
+	ret = cdev_add(&mydev,dev,1);
+	if(ret<0)
+	{
+		pr_info("Cdev add failed\n");
+	}
 	
-	cl = class_create(THIS_MODULE, "chardrvclass");							//  Creating device file
+	cl = class_create(THIS_MODULE, "charclass");							//  Creating device file
 	device_create(cl,NULL,dev,NULL,"node");
+	
 	return 0;
 }
 
@@ -28,7 +67,7 @@ void __exit destructor(void)
 {
 	device_destroy(cl,dev);										//  Destroying Device file
 	class_destroy(cl);
-
+	cdev_del(&mydev);
 	unregister_chrdev_region(dev,nod);
 	pr_info("Bye, Uninstalling Driver...\n");
 }
